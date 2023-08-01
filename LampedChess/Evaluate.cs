@@ -22,6 +22,9 @@ namespace LampedChess
 
         }
 
-
+        internal static int EvaluateMove(Move randomMove)
+        {
+            return 90001; //LGTM, outstanding move.
+        }
     }
 }

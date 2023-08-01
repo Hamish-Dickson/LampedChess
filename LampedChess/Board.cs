@@ -1,5 +1,6 @@
 ﻿using LampedChess.Enumerations;
 using LampedChess.Utils;
+using System.Diagnostics;
 
 namespace LampedChess
 {
@@ -32,8 +33,149 @@ namespace LampedChess
 
         public void Update(string move, bool opponentMove)
         {
-            (Move madeMove, Piece piece) = ParseMove(move);
+            (Move, Piece) parsedMove = ParseMove(move);
+            ProcessCapture(parsedMove);
+            ProcessMove(parsedMove);
+            this.RefreshBoards();
+            if (opponentMove)
+            {
+                string ourResponse = GenerateMove(1000).ToUCI();
 
+                Console.WriteLine("Opponent plays: " + move + " We play: " + ourResponse);
+                Console.WriteLine("State before response:");
+                Console.WriteLine(this.ToString());
+                this.Update(ourResponse, false);
+            }
+        }
+
+        private void ProcessCapture((Move, Piece) value)
+        {
+            Move madeMove = value.Item1;
+            Piece piece = value.Item2;
+            Piece capturedPiece = FindPieceEnemyCaptured(madeMove.to);
+
+            //now we need to execute the move and update the bitboard to delete the captured piece.
+            if (capturedPiece != Piece.EMPTY)
+            {
+                switch (capturedPiece)
+                {
+                    case Piece.BLACK_PAWN:
+                        bpBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.BLACK_KNIGHT:
+                        bnBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.BLACK_BISHOP:
+                        bbBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.BLACK_ROOK:
+                        brBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.BLACK_QUEEN:
+                        bqBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.BLACK_KING:
+                        bkBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_PAWN:
+                        wpBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_KNIGHT:
+                        wnBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_BISHOP:
+                        wbBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_ROOK:
+                        wrBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_QUEEN:
+                        wqBitBoard &= ~madeMove.to;
+                        break;
+                    case Piece.WHITE_KING:
+                        wkBitBoard &= ~madeMove.to;
+                        break;
+                }
+            }
+        }
+
+        private Piece FindPieceEnemyCaptured(ulong to)
+        {
+            //we have a ulong which represents the bitboard of the move just made, we need to see if any of our pieces occupy it.
+            //if they do, we need to return the piece type.
+            //if they don't, we need to return Piece.EMPTY
+            //we can use the playingAs property to determine if we are looking for white or black pieces.
+            //we can use the allPiecesBitBoard to see if any of our pieces occupy the square.
+            if (playingAs == PlayingAs.BLACK)
+            {
+                if ((to & bpBitBoard) != 0)
+                {
+                    return Piece.BLACK_PAWN;
+                }
+                else if ((to & bnBitBoard) != 0)
+                {
+                    return Piece.BLACK_KNIGHT;
+                }
+                else if ((to & bbBitBoard) != 0)
+                {
+                    return Piece.BLACK_BISHOP;
+                }
+                else if ((to & brBitBoard) != 0)
+                {
+                    return Piece.BLACK_ROOK;
+                }
+                else if ((to & bqBitBoard) != 0)
+                {
+                    return Piece.BLACK_QUEEN;
+                }
+                else if ((to & bkBitBoard) != 0)
+                {
+                    return Piece.BLACK_KING;
+                }
+                else
+                {
+                    return Piece.EMPTY;
+                }
+            }
+            else
+            {
+                if ((to & wpBitBoard) != 0)
+                {
+                    return Piece.WHITE_PAWN;
+                }
+                else if ((to & wnBitBoard) != 0)
+                {
+                    return Piece.WHITE_KNIGHT;
+                }
+                else if ((to & wbBitBoard) != 0)
+                {
+                    return Piece.WHITE_BISHOP;
+                }
+                else if ((to & wrBitBoard) != 0)
+                {
+                    return Piece.WHITE_ROOK;
+                }
+                else if ((to & wqBitBoard) != 0)
+                {
+                    return Piece.WHITE_QUEEN;
+                }
+                else if ((to & wkBitBoard) != 0)
+                {
+                    return Piece.WHITE_KING;
+                }
+                else
+                {
+                    return Piece.EMPTY;
+                }
+            }
+
+
+        }
+
+        private void ProcessMove((Move, Piece) value)
+        {
+            Move madeMove = value.Item1;
+            Piece piece = value.Item2;
             switch (piece)
             {
                 case Piece.WHITE_PAWN:
@@ -85,16 +227,6 @@ namespace LampedChess
                     bkBitBoard ^= madeMove.to;
                     break;
             }
-            this.RefreshBoards();
-            if (opponentMove)
-            {
-                string ourResponse = GenerateMove().ToUCI();
-
-                Console.WriteLine("Opponent plays: " + move + " We play: " + ourResponse);
-                Console.WriteLine("State before response:");
-                Console.WriteLine(this.ToString());
-                this.Update(ourResponse, false);
-            }
         }
 
         private (Move, Piece) ParseMove(string move)
@@ -107,28 +239,55 @@ namespace LampedChess
 
             Move madeMove = new Move()
             {
-                from = Utils.PositionBitBoards.GetBitBoard(fromSquare),
-                to = Utils.PositionBitBoards.GetBitBoard(toSquare),
+                from = PositionBitBoards.GetBitBoard(fromSquare),
+                to = PositionBitBoards.GetBitBoard(toSquare),
                 promotionPiece = promotion
             };
 
             return (madeMove, movedPiece);
         }
 
-        private Move GenerateMove()
+        private Move GenerateMove(long millisecondsToThink)
         {
-            return new Move()
+            
+            Move bestMove = null;
+            int bestScore = -100000;
+            Stopwatch sw = new();
+            sw.Start();
+            while (sw.ElapsedMilliseconds < millisecondsToThink)
             {
-                from = PositionBitBoards.GetBitBoard("b8"),
-                to = PositionBitBoards.GetBitBoard("c6"),
-            };
+                Move randomMove = GenerateRandomMove();
+                int score = Evaluate.EvaluateMove(randomMove);
+                if (score > bestScore)
+                {
+                    bestScore = score;
+                    bestMove = randomMove;
+                }
+            }
+            return bestMove;
+        }//make a while loop that runs until the time is up.
+
+
+        private Move GenerateRandomMove()
+        {
+            // "opponent plays e2e4, we play c2b6" outstanding move
+            var files = new[] {"a", "b", "c", "d", "e", "f", "g", "h"};
+            var ranks = new[] {"1", "2", "3", "4", "5", "6", "7", "8"};
+
+            Random random = new();
+            var fromFile = files[random.Next(0, 8)];
+            var fromRank = ranks[random.Next(0, 8)];
+            var toFile = files[random.Next(0, 8)];
+            var toRank = ranks[random.Next(0, 8)];
+
+            return ParseMove(fromFile + fromRank + toFile + toRank).Item1;
         }
 
 
         public ulong GetKnightMoves(string square)
         {
             List<ulong> possibleMoves = new List<ulong>();
-            ulong currentBitBoard = Utils.PositionBitBoards.GetBitBoard(square);
+            ulong currentBitBoard = PositionBitBoards.GetBitBoard(square);
 
             possibleMoves.Add(currentBitBoard << 17);
             possibleMoves.Add(currentBitBoard << 15);
