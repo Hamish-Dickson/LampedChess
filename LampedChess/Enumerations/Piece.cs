@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LampedChess.Enumerations
 {
-    public enum Pieces
+    public enum Piece
     {
         EMPTY,
         WHITE_PAWN,

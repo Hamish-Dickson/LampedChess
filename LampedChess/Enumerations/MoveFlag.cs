@@ -1,6 +1,6 @@
 ﻿namespace LampedChess.Enumerations
 {
-    public class MoveFlags
+    public class MoveFlag
     {
         public const int NONE = 0;
         public const int PAWN_START = 1;

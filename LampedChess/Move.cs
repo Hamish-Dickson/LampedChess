@@ -6,8 +6,8 @@ namespace LampedChess
     {
         public ulong from = 0;
         public ulong to = 0;
-        public int flag = MoveFlags.NONE;
-        public Pieces promotionPiece = Pieces.EMPTY;
+        public int flag = MoveFlag.NONE;
+        public Piece promotionPiece = Piece.EMPTY;
 
         public string ToUCI()
         {

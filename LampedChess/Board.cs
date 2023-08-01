@@ -1,9 +1,5 @@
 ﻿using LampedChess.Enumerations;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using LampedChess.Utils;
 
 namespace LampedChess
 {
@@ -26,93 +22,109 @@ namespace LampedChess
         ulong wPiecesBitBoard;
         ulong bPiecesBitBoard;
         ulong allPiecesBitBoard;
-        public Board(string currentState)
+
+        private PlayingAs playingAs;
+        public Board(string currentState, PlayingAs playingAs)
         {
+            this.playingAs = playingAs;
             this.RefreshBoards();
         }
 
         public void Update(string move, bool opponentMove)
         {
-            (ulong moveFrom, ulong moveTo, Pieces piece) = ParseMove(move);
+            (Move madeMove, Piece piece) = ParseMove(move);
 
             switch (piece)
             {
-                case Pieces.WHITE_PAWN:
-                    wpBitBoard ^= moveFrom;
-                    wpBitBoard ^= moveTo;
+                case Piece.WHITE_PAWN:
+                    wpBitBoard ^= madeMove.from;
+                    wpBitBoard ^= madeMove.to;
                     break;
-                case Pieces.WHITE_KNIGHT:
-                    wnBitBoard ^= moveFrom;
-                    wnBitBoard ^= moveTo;
+                case Piece.WHITE_KNIGHT:
+                    wnBitBoard ^= madeMove.from;
+                    wnBitBoard ^= madeMove.to;
                     break;
-                case Pieces.WHITE_BISHOP:
-                    wbBitBoard ^= moveFrom;
-                    wbBitBoard ^= moveTo;
+                case Piece.WHITE_BISHOP:
+                    wbBitBoard ^= madeMove.from;
+                    wbBitBoard ^= madeMove.to;
                     break;
-                case Pieces.WHITE_ROOK:
-                    wrBitBoard ^= moveFrom;
-                    wrBitBoard ^= moveTo;
+                case Piece.WHITE_ROOK:
+                    wrBitBoard ^= madeMove.from;
+                    wrBitBoard ^= madeMove.to;
                     break;
-                case Pieces.WHITE_QUEEN:
-                    wqBitBoard ^= moveFrom;
-                    wqBitBoard ^= moveTo;
+                case Piece.WHITE_QUEEN:
+                    wqBitBoard ^= madeMove.from;
+                    wqBitBoard ^= madeMove.to;
                     break;
-                case Pieces.WHITE_KING:
-                    wkBitBoard ^= moveFrom;
-                    wkBitBoard ^= moveTo;
+                case Piece.WHITE_KING:
+                    wkBitBoard ^= madeMove.from;
+                    wkBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_PAWN:
-                    bpBitBoard ^= moveFrom;
-                    bpBitBoard ^= moveTo;
+                case Piece.BLACK_PAWN:
+                    bpBitBoard ^= madeMove.from;
+                    bpBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_KNIGHT:
-                    bnBitBoard ^= moveFrom;
-                    bnBitBoard ^= moveTo;
+                case Piece.BLACK_KNIGHT:
+                    bnBitBoard ^= madeMove.from;
+                    bnBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_BISHOP:
-                    bbBitBoard ^= moveFrom;
-                    bbBitBoard ^= moveTo;
+                case Piece.BLACK_BISHOP:
+                    bbBitBoard ^= madeMove.from;
+                    bbBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_ROOK:
-                    brBitBoard ^= moveFrom;
-                    brBitBoard ^= moveTo;
+                case Piece.BLACK_ROOK:
+                    brBitBoard ^= madeMove.from;
+                    brBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_QUEEN:
-                    bqBitBoard ^= moveFrom;
-                    bqBitBoard ^= moveTo;
+                case Piece.BLACK_QUEEN:
+                    bqBitBoard ^= madeMove.from;
+                    bqBitBoard ^= madeMove.to;
                     break;
-                case Pieces.BLACK_KING:
-                    bkBitBoard ^= moveFrom;
-                    bkBitBoard ^= moveTo;
+                case Piece.BLACK_KING:
+                    bkBitBoard ^= madeMove.from;
+                    bkBitBoard ^= madeMove.to;
                     break;
             }
             this.RefreshBoards();
-            if(opponentMove)
+            if (opponentMove)
             {
                 string ourResponse = GenerateMove().ToUCI();
 
                 Console.WriteLine("Opponent plays: " + move + " We play: " + ourResponse);
+                Console.WriteLine("State before response:");
+                Console.WriteLine(this.ToString());
                 this.Update(ourResponse, false);
             }
         }
-        
-        private (ulong, ulong, Pieces) ParseMove(string move)
+
+        private (Move, Piece) ParseMove(string move)
         {
             string fromSquare = move.Substring(0, 2);
             string toSquare = move.Substring(2, 2);
-            return (Utils.PositionBitBoards.GetBitBoard(fromSquare), Utils.PositionBitBoards.GetBitBoard(toSquare), Pieces.WHITE_PAWN);
+
+            Piece movedPiece = FindPiece(fromSquare);
+            Piece promotion = PromotionHelper.GetPromotionPiece(move, this.playingAs);
+
+            Move madeMove = new Move()
+            {
+                from = Utils.PositionBitBoards.GetBitBoard(fromSquare),
+                to = Utils.PositionBitBoards.GetBitBoard(toSquare),
+                promotionPiece = promotion
+            };
+
+            return (madeMove, movedPiece);
         }
 
         private Move GenerateMove()
         {
             return new Move()
             {
-                from = Utils.PositionBitBoards.GetBitBoard("e7"),
-                to = Utils.PositionBitBoards.GetBitBoard("e5"),
+                from = PositionBitBoards.GetBitBoard("b8"),
+                to = PositionBitBoards.GetBitBoard("c6"),
             };
         }
 
-        
+
         public ulong GetKnightMoves(string square)
         {
             List<ulong> possibleMoves = new List<ulong>();
@@ -142,6 +154,27 @@ namespace LampedChess
             return currentBitBoard;
         }
 
+        public Piece FindPiece(string square)
+        {
+            // given a square, we need to find what piece occupies it.
+            ulong currentBitBoard = Utils.PositionBitBoards.GetBitBoard(square);
+            if ((wpBitBoard & currentBitBoard) != 0) return Piece.WHITE_PAWN;
+            if ((wnBitBoard & currentBitBoard) != 0) return Piece.WHITE_KNIGHT;
+            if ((wbBitBoard & currentBitBoard) != 0) return Piece.WHITE_BISHOP;
+            if ((wrBitBoard & currentBitBoard) != 0) return Piece.WHITE_ROOK;
+            if ((wqBitBoard & currentBitBoard) != 0) return Piece.WHITE_QUEEN;
+            if ((wkBitBoard & currentBitBoard) != 0) return Piece.WHITE_KING;
+            if ((bpBitBoard & currentBitBoard) != 0) return Piece.BLACK_PAWN;
+            if ((bnBitBoard & currentBitBoard) != 0) return Piece.BLACK_KNIGHT;
+            if ((bbBitBoard & currentBitBoard) != 0) return Piece.BLACK_BISHOP;
+            if ((brBitBoard & currentBitBoard) != 0) return Piece.BLACK_ROOK;
+            if ((bqBitBoard & currentBitBoard) != 0) return Piece.BLACK_QUEEN;
+            if ((bkBitBoard & currentBitBoard) != 0) return Piece.BLACK_KING;
+            Console.WriteLine("No piece found at " + square + "🤔");
+            return Piece.EMPTY;
+
+        }
+
         private void RefreshBoards()
         {
             wPiecesBitBoard = 0b0;
@@ -164,6 +197,38 @@ namespace LampedChess
         public ulong GetAllPieces()
         {
             return allPiecesBitBoard;
+        }
+
+
+        public override string ToString()
+        {
+            // i need to display all of my pieces in the console. We need to write backwards to show white at the bottom
+
+            string board = "";
+            for (int i = 7; i >= 0; i--)
+            {
+                for (int j = 0; j < 8; j++)
+                {
+                    ulong currentBitBoard = 0b1;
+                    currentBitBoard = currentBitBoard << ((i * 8) + j);
+                    if ((wpBitBoard & currentBitBoard) != 0) board += "P";
+                    else if ((wnBitBoard & currentBitBoard) != 0) board += "N";
+                    else if ((wbBitBoard & currentBitBoard) != 0) board += "B";
+                    else if ((wrBitBoard & currentBitBoard) != 0) board += "R";
+                    else if ((wqBitBoard & currentBitBoard) != 0) board += "Q";
+                    else if ((wkBitBoard & currentBitBoard) != 0) board += "K";
+                    else if ((bpBitBoard & currentBitBoard) != 0) board += "p";
+                    else if ((bnBitBoard & currentBitBoard) != 0) board += "n";
+                    else if ((bbBitBoard & currentBitBoard) != 0) board += "b";
+                    else if ((brBitBoard & currentBitBoard) != 0) board += "r";
+                    else if ((bqBitBoard & currentBitBoard) != 0) board += "q";
+                    else if ((bkBitBoard & currentBitBoard) != 0) board += "k";
+                    else board += ".";
+                }
+                board += "\n";
+            }
+            return board;
+
         }
     }
 }
