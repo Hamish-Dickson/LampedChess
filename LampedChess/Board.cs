@@ -31,7 +31,7 @@ namespace LampedChess
             this.RefreshBoards();
         }
 
-        public void Update(string move, bool opponentMove)
+        public string Update(string move, bool opponentMove)
         {
             (Move, Piece) parsedMove = ParseMove(move);
             ProcessCapture(parsedMove);
@@ -42,9 +42,12 @@ namespace LampedChess
                 string ourResponse = GenerateMove(1000).ToUCI();
 
                 Console.WriteLine("Opponent plays: " + move + " We play: " + ourResponse);
-                Console.WriteLine("State before response:");
-                Console.WriteLine(this.ToString());
                 this.Update(ourResponse, false);
+                return ourResponse;
+            }
+            else
+            {
+                return"";
             }
         }
 
@@ -248,8 +251,7 @@ namespace LampedChess
         }
 
         private Move GenerateMove(long millisecondsToThink)
-        {
-            
+        {            
             Move bestMove = null;
             int bestScore = -100000;
             Stopwatch sw = new();
@@ -267,6 +269,79 @@ namespace LampedChess
             return bestMove;
         }//make a while loop that runs until the time is up.
 
+
+        private List<Move> GenerateAllLegalMoves()
+        {
+            List<Move> move = new List<Move>();
+            move.AddRange(GenerateAllPawnMoves());
+            move.AddRange(GenerateAllKnightMoves());
+            move.AddRange(GenerateAllBishopMoves());
+            move.AddRange(GenerateAllRookMoves());
+            move.AddRange(GenerateAllQueenMoves());
+            move.AddRange(GenerateAllKingMoves());
+
+
+            return move;
+        }
+
+        private IEnumerable<Move> GenerateAllKingMoves()
+        {
+            // generate all king moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+            throw new NotImplementedException();
+
+        }
+
+        private IEnumerable<Move> GenerateAllQueenMoves()
+        {
+            // generate all queen moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+
+            throw new NotImplementedException();
+        }
+
+        private IEnumerable<Move> GenerateAllRookMoves()
+        {
+            // generate all rook moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+
+            throw new NotImplementedException();
+        }
+
+        private IEnumerable<Move> GenerateAllBishopMoves()
+        {
+            // generate all bishop moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+            throw new NotImplementedException();
+        }
+
+        private IEnumerable<Move> GenerateAllKnightMoves()
+        {
+            // generate all knight moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+
+            throw new NotImplementedException();
+        }
+
+        private IEnumerable<Move> GenerateAllPawnMoves()
+        {
+            // generate all pawn moves
+            // check if any of them are legal
+            // if they are, add them to the list
+            // return the list
+
+            throw new NotImplementedException();
+        }
 
         private Move GenerateRandomMove()
         {
@@ -329,7 +404,7 @@ namespace LampedChess
             if ((brBitBoard & currentBitBoard) != 0) return Piece.BLACK_ROOK;
             if ((bqBitBoard & currentBitBoard) != 0) return Piece.BLACK_QUEEN;
             if ((bkBitBoard & currentBitBoard) != 0) return Piece.BLACK_KING;
-            Console.WriteLine("No piece found at " + square + "🤔");
+            //Console.WriteLine("No piece found at " + square + "🤔");
             return Piece.EMPTY;
 
         }

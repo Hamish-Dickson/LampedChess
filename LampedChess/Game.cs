@@ -18,7 +18,12 @@ namespace LampedChess
             currentBoard = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", playingAs); //starting position
             Console.WriteLine(currentBoard.ToString());
 
-            currentBoard.Update("e2e4", true);
+            Board currentBoard2 = new Board("rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR", PlayingAs.BLACK); //starting position
+
+            var a = currentBoard.Update("e2e4", true);
+            Console.WriteLine(currentBoard.ToString());
+
+            var b = currentBoard2.Update(a, true);
             Console.WriteLine(currentBoard.ToString());
         }
     }

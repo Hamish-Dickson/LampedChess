@@ -11,7 +11,7 @@ namespace LampedChess
 
         public string ToUCI()
         {
-            string result = Utils.PositionBitBoards.GetSquareNameFromBitBoard(from) + Utils.PositionBitBoards.GetSquareNameFromBitBoard(to);
+            string result = Utils.PositionBitBoards.GetSquareNamesFromBitBoard(from).First() + Utils.PositionBitBoards.GetSquareNamesFromBitBoard(to).First();
             return result;
         }
     }

@@ -1,4 +1,6 @@
-﻿namespace LampedChess.Utils
+﻿using System.Collections;
+
+namespace LampedChess.Utils
 {
     /// <summary>
     /// This class is disgusting, I'm sorry.
@@ -156,81 +158,81 @@
             }
         }
 
-        public static string GetSquareNameFromBitBoard(ulong board)
+        public static List<string> GetSquareNamesFromBitBoard(ulong board)
         {
             // There is 0 shot this method is fast, but i cant think of a better way????
-            string result = "";
-            if ((board & a1) != 0) result = "a1";
-            if ((board & b1) != 0) result = "b1";
-            if ((board & c1) != 0) result = "c1";
-            if ((board & d1) != 0) result = "d1";
-            if ((board & e1) != 0) result = "e1";
-            if ((board & f1) != 0) result = "f1";
-            if ((board & g1) != 0) result = "g1";
-            if ((board & h1) != 0) result = "h1";
+            List<string> result = new List<string>();
+            if ((board & a1) != 0) result.Add("a1");
+            if ((board & b1) != 0) result.Add("b1");
+            if ((board & c1) != 0) result.Add("c1");
+            if ((board & d1) != 0) result.Add("d1");
+            if ((board & e1) != 0) result.Add("e1");
+            if ((board & f1) != 0) result.Add("f1");
+            if ((board & g1) != 0) result.Add("g1");
+            if ((board & h1) != 0) result.Add("h1");
 
-            if ((board & a2) != 0) result = "a2";
-            if ((board & b2) != 0) result = "b2";
-            if ((board & c2) != 0) result = "c2";
-            if ((board & d2) != 0) result = "d2";
-            if ((board & e2) != 0) result = "e2";
-            if ((board & f2) != 0) result = "f2";
-            if ((board & g2) != 0) result = "g2";
-            if ((board & h2) != 0) result = "h2";
+            if ((board & a2) != 0) result.Add("a2");
+            if ((board & b2) != 0) result.Add("b2");
+            if ((board & c2) != 0) result.Add("c2");
+            if ((board & d2) != 0) result.Add("d2");
+            if ((board & e2) != 0) result.Add("e2");
+            if ((board & f2) != 0) result.Add("f2");
+            if ((board & g2) != 0) result.Add("g2");
+            if ((board & h2) != 0) result.Add("h2");
 
-            if ((board & a3) != 0) result = "a3";
-            if ((board & b3) != 0) result = "b3";
-            if ((board & c3) != 0) result = "c3";
-            if ((board & d3) != 0) result = "d3";
-            if ((board & e3) != 0) result = "e3";
-            if ((board & f3) != 0) result = "f3";
-            if ((board & g3) != 0) result = "g3";
-            if ((board & h3) != 0) result = "h3";
+            if ((board & a3) != 0) result.Add("a3");
+            if ((board & b3) != 0) result.Add("b3");
+            if ((board & c3) != 0) result.Add("c3");
+            if ((board & d3) != 0) result.Add("d3");
+            if ((board & e3) != 0) result.Add("e3");
+            if ((board & f3) != 0) result.Add("f3");
+            if ((board & g3) != 0) result.Add("g3");
+            if ((board & h3) != 0) result.Add("h3");
 
-            if ((board & a4) != 0) result = "a4";
-            if ((board & b4) != 0) result = "b4";
-            if ((board & c4) != 0) result = "c4";
-            if ((board & d4) != 0) result = "d4";
-            if ((board & e4) != 0) result = "e4";
-            if ((board & f4) != 0) result = "f4";
-            if ((board & g4) != 0) result = "g4";
-            if ((board & h4) != 0) result = "h4";
+            if ((board & a4) != 0) result.Add("a4");
+            if ((board & b4) != 0) result.Add("b4");
+            if ((board & c4) != 0) result.Add("c4");
+            if ((board & d4) != 0) result.Add("d4");
+            if ((board & e4) != 0) result.Add("e4");
+            if ((board & f4) != 0) result.Add("f4");
+            if ((board & g4) != 0) result.Add("g4");
+            if ((board & h4) != 0) result.Add("h4");
 
-            if ((board & a5) != 0) result = "a5";
-            if ((board & b5) != 0) result = "b5";
-            if ((board & c5) != 0) result = "c5";
-            if ((board & d5) != 0) result = "d5";
-            if ((board & e5) != 0) result = "e5";
-            if ((board & f5) != 0) result = "f5";
-            if ((board & g5) != 0) result = "g5";
-            if ((board & h5) != 0) result = "h5";
+            if ((board & a5) != 0) result.Add("a5");
+            if ((board & b5) != 0) result.Add("b5");
+            if ((board & c5) != 0) result.Add("c5");
+            if ((board & d5) != 0) result.Add("d5");
+            if ((board & e5) != 0) result.Add("e5");
+            if ((board & f5) != 0) result.Add("f5");
+            if ((board & g5) != 0) result.Add("g5");
+            if ((board & h5) != 0) result.Add("h5");
 
-            if ((board & a6) != 0) result = "a6";
-            if ((board & b6) != 0) result = "b6";
-            if ((board & c6) != 0) result = "c6";
-            if ((board & d6) != 0) result = "d6";
-            if ((board & e6) != 0) result = "e6";
-            if ((board & f6) != 0) result = "f6";
-            if ((board & g6) != 0) result = "g6";
-            if ((board & h6) != 0) result = "h6";
+            if ((board & a6) != 0) result.Add("a6");
+            if ((board & b6) != 0) result.Add("b6");
+            if ((board & c6) != 0) result.Add("c6");
+            if ((board & d6) != 0) result.Add("d6");
+            if ((board & e6) != 0) result.Add("e6");
+            if ((board & f6) != 0) result.Add("f6");
+            if ((board & g6) != 0) result.Add("g6");
+            if ((board & h6) != 0) result.Add("h6");
 
-            if ((board & a7) != 0) result = "a7";
-            if ((board & b7) != 0) result = "b7";
-            if ((board & c7) != 0) result = "c7";
-            if ((board & d7) != 0) result = "d7";
-            if ((board & e7) != 0) result = "e7";
-            if ((board & f7) != 0) result = "f7";
-            if ((board & g7) != 0) result = "g7";
-            if ((board & h7) != 0) result = "h7";
+            if ((board & a7) != 0) result.Add("a7");
+            if ((board & b7) != 0) result.Add("b7");
+            if ((board & c7) != 0) result.Add("c7");
+            if ((board & d7) != 0) result.Add("d7");
+            if ((board & e7) != 0) result.Add("e7");
+            if ((board & f7) != 0) result.Add("f7");
+            if ((board & g7) != 0) result.Add("g7");
+            if ((board & h7) != 0) result.Add("h7");
 
-            if ((board & a8) != 0) result = "a8";
-            if ((board & b8) != 0) result = "b8";
-            if ((board & c8) != 0) result = "c8";
-            if ((board & d8) != 0) result = "d8";
-            if ((board & e8) != 0) result = "e8";
-            if ((board & f8) != 0) result = "f8";
-            if ((board & g8) != 0) result = "g8";
-            if ((board & h8) != 0) result = "h8";
+            if ((board & a8) != 0) result.Add("a8");
+            if ((board & b8) != 0) result.Add("b8");
+            if ((board & c8) != 0) result.Add("c8");
+            if ((board & d8) != 0) result.Add("d8");
+            if ((board & e8) != 0) result.Add("e8");
+            if ((board & f8) != 0) result.Add("f8");
+            if ((board & g8) != 0) result.Add("g8");
+            if ((board & h8) != 0) result.Add("h8");
 
             return result;
         }
